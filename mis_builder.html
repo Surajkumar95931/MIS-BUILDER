@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MIS Builder – Daily Enquiry Status Report</title>
+<style>
+:root{--navy:#0f2447;--blue:#1d4e89;--gold:#b8892b;--bg:#eef1f6;--line:#cfd6e3;--ink:#1c2433}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:'Segoe UI',Calibri,Arial,sans-serif;color:var(--ink)}
+header{background:var(--navy);color:#fff;padding:16px 28px;border-bottom:4px solid var(--gold)}
+header h1{margin:0;font-size:20px}header p{margin:3px 0 0;font-size:12.5px;opacity:.75}
+main{max-width:1500px;margin:0 auto;padding:20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:16px}
+.card h2{margin:0 0 10px;font-size:14px;color:var(--navy);text-transform:uppercase;letter-spacing:.6px}
+.step{display:inline-block;background:var(--gold);color:#fff;border-radius:50%;width:20px;height:20px;text-align:center;font-size:12px;line-height:20px;margin-right:6px}
+#drop{border:2px dashed #8a9bb8;border-radius:8px;padding:26px;text-align:center;cursor:pointer;background:#f7f9fc;color:#42536f}
+#drop.hov{background:#e6eefb;border-color:var(--blue)}
+#files{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:#e8f0e9;border:1px solid #9bc3a1;color:#1d5a2b;border-radius:14px;padding:3px 11px;font-size:12px}
+.chip.bad{background:#fdecec;border-color:#e3a1a1;color:#8a1d1d}
+.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+input[type=date],select{padding:6px 8px;border:1px solid var(--line);border-radius:5px;font-size:13px}
+select.err{border-color:#c0392b;background:#fdecec}
+button{background:var(--navy);color:#fff;border:0;border-radius:5px;padding:9px 16px;font-size:13px;cursor:pointer}
+button.alt{background:var(--blue)}button:hover{opacity:.9}
+.gt{font-size:12px;font-weight:600;color:var(--blue);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:8px}
+.mrow{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:5px;padding:6px 9px;font-size:13px;background:#fff}
+.mrow small{color:#6b778c}
+.rc{border:1px solid var(--line);border-top:3px solid var(--blue);border-radius:6px;padding:8px;display:flex;flex-direction:column;gap:6px;background:#f7f9fc;align-content:flex-start}
+.rc>b{color:var(--navy);font-size:13.5px}.rc select{width:100%}
+.un{background:#fff4dd;border:1px solid #e0b24a;border-radius:6px;padding:8px 10px}
+#nr{padding:7px 9px;border:1px solid var(--line);border-radius:5px;font-size:13px;width:260px}
+#msg{color:#c0392b;font-size:13px;margin-left:12px}
+#wrap{overflow-x:auto;background:#e4e8f0;border:1px solid var(--line);border-radius:8px;padding:14px}
+#rep{background:#fff;width:1480px;box-shadow:0 2px 10px rgba(15,36,71,.15)}
+.rb{background:var(--navy);color:#fff;padding:20px 26px 16px;display:flex;justify-content:space-between;align-items:flex-end;border-bottom:5px solid var(--gold)}
+.rb h3{margin:0;font-size:24px;font-weight:600;letter-spacing:.3px}.rb p{margin:5px 0 0;font-size:13px;opacity:.8}
+.rb .d{text-align:right}.rb .d b{display:block;font-size:26px;font-weight:600}.rb .d span{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;opacity:.75}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:16px 26px 6px}
+.k{border:1px solid #d5dbe7;border-left:5px solid var(--blue);border-radius:4px;padding:10px 14px;background:#f8f9fc}
+.k.r{border-left-color:#b3261e}.k.g{border-left-color:var(--gold)}.k.n{border-left-color:#2a7a4b}
+.k span{font-size:11px;color:#5a6780;text-transform:uppercase;letter-spacing:.8px}.k b{display:block;font-size:28px;color:var(--navy);margin-top:2px}.k.r b{color:#b3261e}
+.tw{padding:10px 26px 4px}
+table{border-collapse:collapse;font-size:12.5px;width:100%}
+th,td{border:1px solid #b9c3d4;padding:6px 8px;text-align:center}
+th{background:var(--navy);color:#fff;font-weight:600;line-height:1.3;font-size:12px}
+th.s{background:var(--blue);font-weight:500;font-size:11.5px}
+td.t{text-align:left;font-weight:600;background:#eef2f8;white-space:nowrap;border-left:4px solid var(--blue);color:var(--navy)}
+td.t.ex{border-left-color:var(--gold)}td.t.dm{border-left-color:#2a7a4b}
+tbody tr:nth-child(even) td:not(.t){background:#f9fafc}
+td.z{color:#a3adbf}td.w{background:#fdeaea!important;color:#b3261e;font-weight:700}
+td.e{text-align:left;min-width:120px;font-size:11.5px}
+td[contenteditable]{outline:none}td[contenteditable]:focus{background:#fff8e0!important;box-shadow:inset 0 0 0 2px var(--gold)}
+td.man{background:#fffaf0!important}
+tr.tot td{background:var(--navy)!important;color:#fff;font-weight:700;font-size:13.5px;border-color:var(--navy)}
+.foot{margin:0;padding:10px 26px 14px;font-size:11px;color:#667;display:flex;justify-content:space-between;border-top:1px solid #dde2ec;margin-top:10px}
+.note{font-size:12px;color:#5a6780;margin-top:8px}.hide{display:none}
+#rep{box-shadow:none;border:1px solid #d5dbe6}
+.rb{padding:26px 32px 20px;border-bottom:none;border-top:6px solid var(--gold)}
+.kp{padding:22px 32px 8px;gap:16px}
+.k{background:#fff;border:1px solid #e1e6ef;border-left:5px solid var(--blue);padding:12px 16px}
+.k.r{border-left-color:#b3261e}.k.g{border-left-color:var(--gold)}.k.n{border-left-color:#2a7a4b}.k b{font-size:30px}
+.tw{padding:14px 32px 6px}
+th,td{border:1px solid #dde3ee;padding:8px 9px}th{border-color:#2a3f66}th.s{background:#2b5c9e}
+td.t{background:#f4f6fa}tbody tr:nth-child(even) td:not(.t){background:#fbfcfe}
+tr.tot td{border-color:var(--navy)}
+.nt{padding:6px 32px 0}.nt h4{margin:14px 0 6px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--navy)}
+.nb{min-height:56px;border:1px solid #dde3ee;border-radius:4px;padding:10px 12px;font-size:12.5px;line-height:1.6;background:#fbfcfe;outline:none;white-space:pre-wrap}
+.nb:empty:before,.sg span:empty:before{content:attr(data-ph);color:#a3adbf}
+.sg{display:flex;gap:40px;padding:28px 32px 6px;font-size:12px;color:#445}
+.sg div{flex:0 0 320px;border-top:1px solid #9aa6bb;padding-top:6px}.sg span{outline:none;min-width:60px;display:inline-block}
+.foot{padding:12px 32px 16px}
+@media print{.nb:empty:before,.sg span:empty:before{content:''}}
+td.xb,th.xb{background:#fff!important;border:0!important;width:22px;min-width:22px;padding:0 2px;color:#b3261e}
+tr.xb th{background:#fff!important;border:0!important}
+.xx{cursor:pointer;color:#b3261e;font-size:11px;font-weight:600;white-space:nowrap}.xx:hover{text-decoration:underline}
+#rep.exp .xb{display:none}
+@media print{.xb{display:none}}
+th .xx{color:#ffb9b4}
+.rb [contenteditable],.kp [contenteditable],th [contenteditable],.foot [contenteditable],td.t[contenteditable]{outline:none}
+.rb [contenteditable]:focus,.kp [contenteditable]:focus,th [contenteditable]:focus,.foot [contenteditable]:focus{background:rgba(255,214,120,.28)}
+th [contenteditable]{display:block}.d b{display:block}
+.k b{min-height:36px}
+em.nw{background:#e0a21b;color:#fff;font-style:normal;font-size:10px;padding:1px 6px;border-radius:8px;font-weight:700}
+#chk{font-size:12.5px;padding:9px 12px;border-radius:6px;margin-bottom:12px;line-height:1.6}
+#chk.ok{background:#e8f4ec;border:1px solid #9bc3a1;color:#1d5a2b}#chk.warn{background:#fff4dd;border:1px solid #e0b24a;color:#7a5200}
+@media print{#chk{display:none}}
+@media print{body{background:#fff}header,.card:not(#repCard),.bar,.note,#repCard h2{display:none}#wrap{border:0;padding:0;background:none}#rep{box-shadow:none;zoom:.62}}
+.rc input{padding:6px 8px;border:1px solid var(--line);border-radius:5px;font-size:13px;width:100%}</style></head><body>
+<header><h1>MIS Builder — Daily Enquiry Status Report</h1><p>HTLS · OPGW · Export · Domestic · Copper · Execution &nbsp;·&nbsp; <b id="ld" style="color:#ffb9b4">⚠ JavaScript band hai — browser ya office policy ne rok rakha hai</b></p></header>
+<script>document.getElementById('ld').textContent='⚠ JavaScript chalu hai, par main code load nahi hua — file adhoori ya badli hui hai. Chat ki file card se Download karke dobara kholo (copy-paste mat karo)'</script>
+<div id="err" class="hide" style="background:#fdecec;color:#8a1d1d;padding:10px 28px;font-size:13px;border-bottom:1px solid #e3a1a1"></div>
+<main>
+<div class="card"><h2><span class="step">1</span>Upload Excel files</h2>
+<div id="drop">Drop all Excel files here (HTLS, OPGW, Export, Domestic) or click to browse<br><small>File type is auto-detected from the “Tech Request” column</small></div>
+<input id="inp" type="file" accept=".xlsx,.xls" multiple class="hide"><div id="files"></div></div>
+
+<div class="card hide" id="mapCard"><h2><span class="step">2</span>Assign creator / zone → report row</h2>
+<div id="map"></div>
+<div class="bar" style="margin-top:12px"><input id="nr" type="text" placeholder="New region name (e.g. Asia)"><button class="alt" onclick="addRegion()">＋ Add new region</button><button onclick="expR()" style="background:#7a8396">⬇ Save rules</button><button onclick="$('ri').click()" style="background:#7a8396">⬆ Load rules</button><input id="ri" type="file" accept=".json" class="hide" onchange="impR(this.files[0])"></div>
+<div class="bar" style="margin-top:14px"><button onclick="gen()">Generate report</button><span id="msg"></span></div>
+<div class="note">New creator or new zone in the Excel shows a <b>NEW</b> tag. Known zones (Africa, Europe, etc.) go to their row automatically; anything unknown stays red until you choose. Need another region? Add it above — it appears in every Export dropdown.</div></div>
+
+<div class="card hide" id="repCard"><h2><span class="step">3</span>Final report</h2>
+<div class="bar" style="margin-bottom:12px">
+<label>Report date <input type="date" id="rd"></label>
+<button onclick="dlPng()">⬇ Download PNG</button><button onclick="cpMail()" style="background:#b8892b">📋 Copy for email</button><span id="cpm" style="font-size:12.5px;font-weight:600;color:#1d5a2b"></span><button class="alt" onclick="dlXls()">⬇ Download Excel</button><button class="alt" onclick="window.print()">🖨 Print / PDF</button><button onclick="addRow()" style="background:#2a7a4b">＋ Add row</button><button onclick="restore()" style="background:#7a8396">↺ Restore deleted</button><button onclick="resetEdits()" style="background:#7a8396">↺ Reset edits to auto data</button>
+</div>
+<div id="chk"></div>
+<div id="wrap"><div id="rep"></div></div>
+<div class="note">Copper &amp; Execution numbers, Reason for delay, Action and Remarks are editable — click a cell and type; totals and summary cards update automatically.</div></div>
+</main>
+<script>
+function showErr(m){const b=document.getElementById('err');b.textContent=m;b.classList.remove('hide')}
+window.addEventListener('error',e=>showErr('Error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')));
+window.addEventListener('unhandledrejection',e=>showErr('Error: '+((e.reason&&e.reason.message)||e.reason)));
+if(typeof DecompressionStream==='undefined')showErr('Browser purana hai. Latest Chrome ya Edge me kholo.');
+/* ---- built-in xlsx reader (no external library) ---- */
+async function inflate(u8){const ds=new DecompressionStream('deflate-raw'),w=ds.writable.getWriter();w.write(u8);w.close();return new Uint8Array(await new Response(ds.readable).arrayBuffer())}
+function unzip(buf){const dv=new DataView(buf),u8=new Uint8Array(buf),td=new TextDecoder(),out={};
+ let e=u8.length-22;while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;
+ if(e<0)throw new Error('Not a valid .xlsx file');
+ const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);
+ for(let i=0;i<n;i++){const m=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);
+  const name=td.decode(u8.subarray(p+46,p+46+nl));p+=46+nl+xl+cl;
+  const st=lo+30+dv.getUint16(lo+26,true)+dv.getUint16(lo+28,true),raw=u8.subarray(st,st+cs);
+  out[name]=()=>m===0?Promise.resolve(raw):inflate(raw)}
+ return out}
+async function readXlsx(buf){
+ const z=unzip(buf),td=new TextDecoder(),P=t=>new DOMParser().parseFromString(t,'application/xml'),ss=[];
+ if(z['xl/sharedStrings.xml'])P(td.decode(await z['xl/sharedStrings.xml']())).querySelectorAll('si').forEach(si=>ss.push([...si.querySelectorAll('t')].filter(t=>!t.closest('rPh')).map(t=>t.textContent).join('')));
+ const num=k=>+k.match(/(\d+)\.xml$/)[1],sn=Object.keys(z).filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/.test(k)).sort((a,b)=>num(a)-num(b))[0];
+ if(!sn)throw new Error('No worksheet found');
+ const a=[];
+ P(td.decode(await z[sn]())).querySelectorAll('row').forEach((r,idx)=>{const ri=r.getAttribute('r')?+r.getAttribute('r')-1:idx,row=a[ri]=[];
+  r.querySelectorAll('c').forEach(c=>{const L=c.getAttribute('r').match(/[A-Z]+/)[0];let ci=0;for(const ch of L)ci=ci*26+ch.charCodeAt(0)-64;ci--;
+   const t=c.getAttribute('t'),v=c.querySelector('v');let x=null;
+   if(t==='s'&&v)x=ss[+v.textContent];else if(t==='inlineStr')x=[...c.querySelectorAll('t')].map(q=>q.textContent).join('');
+   else if(v){x=(t==='str'||t==='e')?v.textContent:t==='b'?v.textContent==='1':Number(v.textContent)}
+   row[ci]=x})});
+ return Array.from(a,r=>r?Array.from(r,x=>x===undefined?null:x):[])}
+/* ---- built-in xlsx writer ---- */
+const CT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc32=u=>{let c=-1;for(let i=0;i<u.length;i++)c=CT[(c^u[i])&255]^(c>>>8);return(c^-1)>>>0};
+function zip(files){const parts=[],cd=[],te=new TextEncoder();let off=0;
+ files.forEach(([n,d])=>{const nb=te.encode(n),crc=crc32(d),lh=new DataView(new ArrayBuffer(30));
+  lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint32(14,crc,true);lh.setUint32(18,d.length,true);lh.setUint32(22,d.length,true);lh.setUint16(26,nb.length,true);
+  parts.push(new Uint8Array(lh.buffer),nb,d);
+  const ch=new DataView(new ArrayBuffer(46));ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);ch.setUint32(16,crc,true);ch.setUint32(20,d.length,true);ch.setUint32(24,d.length,true);ch.setUint16(28,nb.length,true);ch.setUint32(42,off,true);
+  cd.push(new Uint8Array(ch.buffer),nb);off+=30+nb.length+d.length});
+ const cdl=cd.reduce((a,b)=>a+b.length,0),e=new DataView(new ArrayBuffer(22));
+ e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cdl,true);e.setUint32(16,off,true);
+ return new Blob([...parts,...cd,new Uint8Array(e.buffer)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+const colL=i=>{let s='';for(i++;i>0;i=Math.floor((i-1)/26))s=String.fromCharCode(65+(i-1)%26)+s;return s};
+const xe=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'');
+const XH='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',XN='xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"',RN='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+function sheetXml(s){const hs=s.hdr||[];
+ let x=XH+`<worksheet ${XN}><cols>${(s.w||[]).map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>`;
+ s.rows.forEach((r,ri)=>{x+=`<row r="${ri+1}">`;const h=hs.includes(ri);
+  r.forEach((v,ci)=>{const e=v===''||v==null;if(e&&!h)return;const a=`r="${colL(ci)}${ri+1}"${h?' s="1"':''}`;
+   x+=e?`<c ${a}/>`:typeof v==='number'?`<c ${a}><v>${v}</v></c>`:`<c ${a} t="inlineStr"><is><t xml:space="preserve">${xe(v)}</t></is></c>`});x+='</row>'});
+ return x+'</sheetData>'+(s.mg&&s.mg.length?`<mergeCells count="${s.mg.length}">${s.mg.map(m=>`<mergeCell ref="${colL(m[1])}${m[0]+1}:${colL(m[3])}${m[2]+1}"/>`).join('')}</mergeCells>`:'')+'</worksheet>'}
+function buildXlsx(S){const te=new TextEncoder(),R='http://schemas.openxmlformats.org/package/2006/relationships';
+ const f=[['[Content_Types].xml',XH+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+S.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')+'</Types>'],
+ ['_rels/.rels',XH+`<Relationships xmlns="${R}"><Relationship Id="rId1" Type="${RN}/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+ ['xl/workbook.xml',XH+`<workbook ${XN} xmlns:r="${RN}"><sheets>`+S.map((s,i)=>`<sheet name="${xe(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')+'</sheets></workbook>'],
+ ['xl/_rels/workbook.xml.rels',XH+`<Relationships xmlns="${R}">`+S.map((_,i)=>`<Relationship Id="rId${i+1}" Type="${RN}/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')+`<Relationship Id="rId${S.length+1}" Type="${RN}/styles" Target="styles.xml"/></Relationships>`],
+ ['xl/styles.xml',XH+`<styleSheet ${XN}><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF0F2447"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" borderId="0" xfId="0" fontId="1" fillId="2" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`]];
+ S.forEach((s,i)=>f.push(['xl/worksheets/sheet'+(i+1)+'.xml',sheetXml(s)]));
+ return zip(f.map(([n,x])=>[n,te.encode(x)]))}
+function tbl(tb){const g=[],mg=[];
+ [...tb.rows].filter(tr=>!tr.classList.contains('xb')).forEach((tr,r)=>{g[r]=g[r]||[];let c=0;
+  [...tr.cells].filter(td=>!td.classList.contains('xb')).forEach(td=>{while(g[r][c]!==undefined)c++;
+   const rs=td.rowSpan||1,cs=td.colSpan||1,t=[...td.childNodes].filter(n=>!(n.classList&&n.classList.contains('xb'))).map(n=>n.innerText??n.textContent).join('').replace(/\s*\n\s*/g,' ').trim(),v=t!==''&&!isNaN(t)?Number(t):t;
+   for(let i=0;i<rs;i++){g[r+i]=g[r+i]||[];for(let j=0;j<cs;j++)g[r+i][c+j]=''}
+   g[r][c]=v;if(rs>1||cs>1)mg.push([r,c,r+rs-1,c+cs-1]);c+=cs})});
+ return{rows:g.map(r=>Array.from(r,x=>x??'')),mg}}
+function save(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+const REG=['Export (Africa, GCC, SAARC)','North America','Latin America','Europe','Australia'];
+const CATS=['HTLS','HTLS (PROJECT)','OPGW',...REG,'Domestic'];
+let CUSTOM=[],EXTRA=0,zmap={},ROWS=[];
+const NR=()=>9+CUSTOM.length;
+const rebuild=()=>{ROWS=[...CATS,...CUSTOM,'Copper','Execution',...Array(EXTRA).fill('Other')]};
+const mk=r=>tp(r.type)==='Export'?r.type+'|'+r.cr+'|'+r.zone:r.type+'|'+r.cr;
+const ZM={'Africa':3,'Middle East':3,'Domestic and SAARC Supply':3,'North America':4,'Central and South America':5,'Latin America':5,'Europe':6,'Australia':7};
+const PEND=['pending at technical team','raise queries by marketing','raise queries by technical'];
+const QRY='raise queries by technical';
+const TN={HTLS:'HTLS',OPGW:'OPGW',Export:'Export',Domestic:'Domestic'};
+const GJ={g0:[0,1],g1:[2,3],g2:[4,5],g3:[6,7],g4:[8,9],g5:[10,11],p:[12],t:[13,14]};
+const EB=s=>E(s).replace(/\n/g,'<br>');
+let LASTM=[],ST={dups:0,conf:0},smap={},saved0={},savedS={};
+const DEFS={'pending at technical team':'p','raise queries by marketing':'p','raise queries by technical':'q','completed':'c','accept by marketing':'c','pending at marketing team':'c'};
+let delR=new Set(),delC=new Set(),LISTS=[],CURD=null;
+let data=[],man={},txt={},cmap={},sug={};
+try{cmap=JSON.parse(localStorage.getItem('mis_cmap3')||'{}');smap=JSON.parse(localStorage.getItem('mis_smap')||'{}');zmap=JSON.parse(localStorage.getItem('mis_zmap')||'{}');CUSTOM=JSON.parse(localStorage.getItem('mis_custom')||'[]')}catch(e){}
+saved0={...cmap};savedS={...smap};rebuild();
+const $=id=>document.getElementById(id);
+const day=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
+function pd(v){if(v==null||v==='')return null;if(v instanceof Date)return day(v);
+ if(typeof v==='number')return new Date(1899,11,30+Math.floor(v));
+ v=String(v);let m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(m)return new Date(+m[3],m[2]-1,+m[1]);
+ if(/^\d{4}-\d\d-\d\dT/.test(v))return day(new Date(v));
+ m=v.match(/^(\d{4})-(\d\d)-(\d\d)/);return m?new Date(+m[1],m[2]-1,+m[3]):null}
+const fmt=d=>String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();
+const E=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const ini=n=>n.split(/[\s.]+/).filter(Boolean).map(x=>x[0].toUpperCase()).join('');
+
+$('drop').onclick=()=>$('inp').click();
+$('inp').onchange=e=>load(e.target.files);
+['dragover','dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.toggle('hov',ev=='dragover');if(ev=='drop')load(e.dataTransfer.files)}));
+
+const CAN=['MKT. Ref','Tech Request','Creator','Zone','Status','Created Date','Date','Submission Date','Customer','Project','Conductor Code','Qty','Attended By'];
+const canon=h=>{h=String(h??'').trim();return CAN.find(c=>c.toLowerCase()===h.toLowerCase())||(/^mkt\.? ref$/i.test(h)?'MKT. Ref':h)};
+async function load(fl){
+ data=[];ST={dups:0,conf:0};$('files').innerHTML='';
+ for(const f of fl){
+  try{
+   const a=await readXlsx(await f.arrayBuffer());
+   const hi=Math.max(0,a.findIndex(r=>r&&r.some(x=>/^(tech request|mkt\.? ref)$/i.test(String(x??'').trim()))));
+   const H=(a[hi]||[]).map(canon),map=new Map(),ri=Math.max(0,H.indexOf('MKT. Ref')),mc=H.findIndex(h=>/^(modified|last modified|last updated|updated)( (date|on|time|date ?time))?$/i.test(String(h||'').trim()));
+   const miss=['MKT. Ref','Tech Request','Creator','Status','Created Date'].filter(c=>!H.includes(c)&&!(c==='Created Date'&&H.includes('Date')));
+   if(miss.length)$('files').innerHTML+=`<span class="chip bad">⚠ ${E(f.name)} — column not found: ${E(miss.join(', '))}. Columns found: ${E(H.filter(Boolean).join(', '))}</span>`;
+   a.slice(hi+1).forEach(v=>{if(!v[ri])return;const o={};H.forEach((h,i)=>o[h]=v[i]);
+    const ref=o['MKT. Ref'],stl=String(o['Status']||'').trim().toLowerCase();
+    if(map.has(ref)){ST.dups++;const f=map.get(ref);if(!f.sts.has(stl)){f.sts.add(stl);ST.conf++}return}
+    const mod=mc>=0?v[mc]:v.find(x=>typeof x==='string'&&/^\d{4}-\d\d-\d\dT/.test(x));
+    map.set(o['MKT. Ref'],{type:String(o['Tech Request']||'').trim(),cr:String(o['Creator']||'').trim(),
+     created:pd(o['Created Date']||o['Date']),sub:pd(o['Submission Date']),mod:pd(mod),
+     st:stl,sts:new Set([stl]),stx:o['Status']||'',ref:o['MKT. Ref'],cust:o['Customer']||'',pn:o['Project']||'',cond:o['Conductor Code']||'',qty:o['Qty']||'',att:o['Attended By']||'',
+     proj:v.includes('Domestic Project'),zone:String(o['Zone']||'').trim()})});
+   const rs=[...map.values()];data.push(...rs);
+   $('files').innerHTML+=`<span class="chip">✔ ${f.name} — ${rs[0]?.type} (${rs.length} enquiries)</span>`;
+  }catch(e){$('files').innerHTML+=`<span class="chip bad">✖ ${f.name} — could not read — ${E(e.message)}</span>`}
+ }
+ if(!data.length)return;
+ const mx=new Date(Math.max(...data.map(r=>r.created).filter(Boolean)));
+ $('rd').value=mx.getFullYear()+'-'+String(mx.getMonth()+1).padStart(2,'0')+'-'+String(mx.getDate()).padStart(2,'0');
+ buildMap();$('repCard').classList.add('hide')}
+
+/* ---- Step 2: rules (creator + zone -> report row). Rules are data, saved in browser, exportable ---- */
+let G={},KS=[],RULES=null,SEEN=new Set();
+const rt=r=>r<2?'HTLS':r==2?'OPGW':r==8?'Domestic':'Export';
+const tp=t=>t==='HTLS'||t==='OPGW'||t==='Domestic'?t:'Export';
+const nz=s=>String(s||'').trim().toLowerCase();
+try{RULES=JSON.parse(localStorage.getItem('mis_rules')||'null');SEEN=new Set(JSON.parse(localStorage.getItem('mis_seen')||'[]'))}catch(e){RULES=null}
+if(!Array.isArray(RULES)){RULES=[];
+ Object.keys(cmap).forEach(k=>{const q=k.split('|');if(typeof cmap[k]!=='number')return;RULES.push(q[0]==='Export'?{c:q[1],z:q[2]||'(blank)',r:cmap[k]}:{c:q[1]||'(none)',z:'',r:cmap[k]})});
+ Object.entries(ZM).forEach(([z,r])=>{if(!RULES.some(u=>!u.c&&nz(u.z)===nz(z)))RULES.push({c:'',z,r})})}
+function rowFor(t,c,z){t=tp(t);if(t!=='Export')c=c||'(none)';let best='',bs=-1;
+ RULES.forEach(u=>{if(rt(u.r)!==t)return;const hc=!!u.c,ex=t==='Export';
+  if(ex?!u.z:!hc)return;if(hc&&nz(u.c)!==nz(c))return;if(ex&&nz(u.z)!==nz(z))return;
+  const sc=(hc?2:0)+(ex?1:0);if(sc>bs){bs=sc;best=u.r}});return best}
+const rowOf=r=>rowFor(r.type,r.cr,tp(r.type)==='Export'?(r.zone||'(blank)'):'');
+const pr=k=>rowFor(G[k].t,G[k].c,tp(G[k].t)==='Export'?(G[k].z||'(blank)'):'');
+function persist(){try{localStorage.setItem('mis_rules',JSON.stringify(RULES));localStorage.setItem('mis_custom',JSON.stringify(CUSTOM))}catch(e){}}
+function addRule(c,z,r){RULES=RULES.filter(u=>!(rt(u.r)===rt(r)&&nz(u.c)===nz(c)&&nz(u.z)===nz(z)));RULES.push({c,z,r});persist()}
+function buildMap(){
+ G={};data.forEach(r=>{const k=mk(r),o=G[k]??={t:r.type,c:r.cr,z:r.zone,n:0};o.n++;if(r.proj)o.pj=(o.pj||0)+1});
+ KS=Object.keys(G).sort((a,b)=>G[a].t.localeCompare(G[b].t)||G[a].c.localeCompare(G[b].c)||G[a].z.localeCompare(G[b].z));
+ KS.forEach(k=>{const g=G[k];if(tp(g.t)==='Export'||pr(k)!=='')return;addRule(g.c||'(none)','',g.t==='OPGW'?2:g.t==='Domestic'?8:((g.pj||0)*2>g.n?1:0))});
+ $('mapCard').classList.remove('hide');$('msg').textContent='';draw()}
+function pl(k){const o=G[k];
+ return`<span>${E(o.c||'(no creator)')}${tp(o.t)==='Export'?' — <b>'+E(o.z||'Zone not given')+'</b>':''} <small>[${E(o.t||'no Tech Request')}] (${o.n})</small>${SEEN.size&&!SEEN.has(k)?' <em class="nw">NEW</em>':''}${tp(o.t)==='Export'&&!RULES.some(u=>nz(u.z)===nz(o.z||'(blank)'))?' <em class="nw">NEW ZONE</em>':''}</span>`}
+function draw(){
+ const y=window.scrollY,R=[...CATS,...CUSTOM],sc={},un=KS.filter(k=>pr(k)==='').length;
+ let h=`<div class="note" style="margin:0 0 8px">${un?`<b style="color:#c0392b">${un} line(s) need a row — see red dropdowns.</b>`:'<b style="color:#2a7a4b">All lines assigned ✔</b>'} &nbsp;Each line is one creator (with zone for Export). Choose the row where it should be counted. Your choice is remembered.</div>`;
+ [...new Set(['HTLS','OPGW','Export','Domestic',...KS.map(k=>G[k].t)])].forEach(t=>{const ks=KS.filter(k=>G[k].t===t);if(!ks.length)return;
+  h+=`<div class="gt">${E(t||'No Tech Request given')} file</div><div class="map">`+ks.map(k=>{const v=pr(k);
+   return`<div class="mrow">${pl(k)}<select class="${v===''?'err':''}" onchange="mvp(${KS.indexOf(k)},this.value)"><option value="">Select row…</option>${R.map((c,i)=>rt(i)===tp(t)?`<option value="${i}" ${v===i?'selected':''}>${E(c)}</option>`:'').join('')}</select></div>`}).join('')+'</div>'});
+ data.forEach(r=>r.sts.forEach(x=>sc[x]=(sc[x]||0)+1));
+ h+='<div class="gt">Status handling — how each status is counted</div><div class="map">'+Object.keys(sc).sort().map(x=>{const cur=smap[x]??DEFS[x]??'';
+  return`<div class="mrow"><span style="text-transform:capitalize">${E(x)||'(blank)'} <small>(${sc[x]})</small>${Object.keys(savedS).length&&savedS[x]===undefined&&DEFS[x]===undefined?' <em class="nw">NEW</em>':''}</span><select data-s="${E(x)}" onchange="smap[this.dataset.s]=this.value"><option value="">Select…</option><option value="p" ${cur=='p'?'selected':''}>Pending for submission</option><option value="q" ${cur=='q'?'selected':''}>Query raised to MKT (pending)</option><option value="c" ${cur=='c'?'selected':''}>Closed / not pending</option></select></div>`}).join('')+'</div>';
+ $('map').innerHTML=h;window.scrollTo(0,y)}
+function mvp(i,v){const o=G[KS[i]];if(v==='')return;addRule(tp(o.t)==='Export'?o.c:(o.c||'(none)'),tp(o.t)==='Export'?(o.z||'(blank)'):'',+v);draw()}
+function addR(ri){const ex=rt(ri)==='Export',c=$('ac'+ri).value.trim(),z=ex?$('az'+ri).value.trim():'';
+ if(ex&&!z){$('msg').textContent='Zone daalo (creator blank = sab creators).';return}
+ if(!ex&&!c){$('msg').textContent='Creator ka naam daalo.';return}
+ addRule(c,z,ri);$('msg').textContent='';draw()}
+function rmRule(i){RULES.splice(i,1);persist();draw()}
+function snap(){}
+function expR(){save(new Blob([JSON.stringify({rules:RULES,custom:CUSTOM})],{type:'application/json'}),'MIS rules.json')}
+function impR(f){if(!f)return;const fr=new FileReader();fr.onload=()=>{try{const j=JSON.parse(fr.result);if(!Array.isArray(j.rules))throw 0;RULES=j.rules;CUSTOM=j.custom||[];EXTRA=0;man={};delR.clear();rebuild();persist();$('repCard').classList.add('hide');if(data.length)buildMap();$('msg').textContent='Rules loaded ✔'}catch(e){showErr('Rules file sahi nahi hai.')}};fr.readAsText(f)}
+function addRegion(){const n=$('nr').value.trim();if(!n)return;
+ if([...CATS,...CUSTOM].some(x=>x.toLowerCase()===n.toLowerCase())){$('msg').textContent='Ye region pehle se hai.';return}
+ snap();CUSTOM.push(n);EXTRA=0;man={};delR.clear();Object.keys(txt).forEach(k=>{if(/^[ramn]\d+$/.test(k))delete txt[k]});rebuild();
+ try{localStorage.setItem('mis_custom',JSON.stringify(CUSTOM))}catch(e){}
+ $('nr').value='';$('repCard').classList.add('hide');buildMap();$('msg').textContent='Region “'+n+'” add ho gaya — ab “＋ Add creator / zone” se usme creators daal sakte ho.'}
+function gen(){
+ const un=KS.filter(k=>pr(k)==='').length;let bad=0;
+ document.querySelectorAll('#map select[data-s]').forEach(e=>{const ok=e.value!=='';e.classList.toggle('err',!ok);if(!ok)bad++;else smap[e.dataset.s]=e.value});
+ if(un||bad){$('msg').textContent=(un?un+' creator–zone creator–zone still Unassigned (no rule matches). ':'')+(bad?bad+' status still need a selection (see red boxes).':'');const t=document.querySelector('.un')||document.querySelector('select.err');if(t)t.scrollIntoView({behavior:'smooth',block:'center'});return}
+ persist();SEEN=new Set([...SEEN,...KS]);
+ $('msg').textContent='';try{localStorage.setItem('mis_seen',JSON.stringify([...SEEN]));localStorage.setItem('mis_custom',JSON.stringify(CUSTOM));localStorage.setItem('mis_smap',JSON.stringify(smap))}catch(e){}
+ saved0={...cmap};savedS={...smap};
+ $('repCard').classList.remove('hide');rebuild();render();$('repCard').scrollIntoView({behavior:'smooth'})}
+$('rd').onchange=()=>resetEdits(true);
+
+function render(){
+ if(!$('rd').value)return;
+ const D=new Date($('rd').value+'T00:00:00'),MS=new Date(D.getFullYear(),D.getMonth(),1),L3=new Date(D-3*864e5);
+ const M=ROWS.map(()=>Array(15).fill(0)),att=ROWS.map(()=>new Set()),lists=ROWS.map(()=>[]);
+ const eq=(a,b)=>a&&b&&a.getTime()===b.getTime();
+ data.forEach(r=>{
+  if(!r.created||r.created>D)return;
+  const k=rowOf(r);if(k==='')return;
+  const o=r.created<MS?1:0,m=M[k],cl=[...r.sts].map(x=>smap[x]??DEFS[x]??'c'),isQ=cl.includes('q'),isP=isQ||cl.includes('p'),bk=!!(o&&r.sts.has('raise queries by marketing')&&eq(r.mod,D));
+  lists[k].push({r,o,f:{g0:1,g1:eq(r.created,D)||bk,g2:eq(r.sub,D),g3:!!(r.sub&&r.sub>=MS&&r.sub<=D),g4:isQ&&eq(r.mod,D),g5:isQ,p:isP,t:isP&&r.created<L3}});
+  m[o]++;
+  if(eq(r.created,D))m[2+o]++;else if(bk)m[3]++;
+  if(eq(r.sub,D))m[4+o]++;
+  if(r.sub&&r.sub>=MS&&r.sub<=D)m[6+o]++;
+  if(isQ){m[10+o]++;if(eq(r.mod,D))m[8+o]++}
+  if(isP){m[12]++;if(r.created<L3){m[13+o]++;if(r.att)att[k].add(ini(r.att))}}});
+ LISTS=lists;CURD=D;LASTM=M;
+ {const cnt=M.slice(0,NR()).reduce((a,r)=>a+r[0]+r[1],0),exc=data.filter(r=>r.created&&r.created>D).length,nd=data.filter(r=>!r.created).length,okc=cnt+exc+nd===data.length;
+  $('chk').className=okc&&!ST.conf?'ok':'warn';
+  $('chk').innerHTML=`<b>${okc?'✔':'⚠'} Data check</b> &nbsp; Enquiries in files: <b>${data.length}</b> · Counted in report: <b>${cnt}</b> · Created after report date (excluded): <b>${exc}</b> · No created date: <b>${nd}</b> · Duplicate lines merged: <b>${ST.dups}</b>${ST.conf?` · ⚠ <b>${ST.conf}</b> enquiries have lines with different statuses — treated as pending if any line is pending`:''}${okc?'':' · ⚠ numbers do not add up, please check mapping'}`}
+ const ds=fmt(D),m2=ds.slice(3),sh=ds.slice(0,5),mo=D.toLocaleString('en-GB',{month:'short'});
+ const hv=(k,d)=>txt['h_'+k]!==undefined?EB(txt['h_'+k]):d;
+ const GR=[
+  {k:'g0',t:`Cumulative Enquiry Received<br>01.${m2} to ${ds}`},
+  {k:'g1',t:`Received from MKT<br>on ${ds}`},
+  {k:'g2',t:`Submitted Technical to MKT<br>on ${ds}`},
+  {k:'g3',t:`Cumulative Enquiry Submitted<br>01.${m2} to ${ds}`},
+  {k:'g4',t:`Attended &amp; Query Raised<br>to MKT (${ds})`},
+  {k:'g5',t:'Technical Queries Pending<br>with Marketing'},
+  {k:'p',t:'Total Pending<br>for MKT Submission<br>(Old + New)',one:1},
+  {k:'r',t:'Reason<br>for Delay',one:1,x:1},{k:'a',t:'Action Initiated /<br>Required',one:1,x:1},
+  {k:'t',t:`Pending &gt; 3 Days<br>as on ${ds}`},
+  {k:'m',t:'Remarks',one:1,x:1}];
+ GR.forEach(g=>g.vj=g.x?(delC.has(g.k)?[]:[0]):GJ[g.k].filter(j=>!delC.has('j'+j)));
+ const V=GR.filter(g=>g.vj.length);
+ let h=`<thead><tr class="xb"><th class="xb"></th><th class="xb"></th>${V.map(g=>`<th class="xb" colspan="${g.vj.length}"><span class="xx" onclick="delGroup('${g.k}')">× remove</span></th>`).join('')}</tr><tr><th class="xb" rowspan="2"></th><th rowspan="2" style="width:190px"><span contenteditable data-k="h_type">${hv('type','Enquiry Type')}</span></th>${V.map(g=>`<th ${g.one?'rowspan="2"':`colspan="${g.vj.length}"`}><span contenteditable data-k="h_${g.k}">${hv(g.k,g.t)}</span></th>`).join('')}</tr><tr>${V.filter(g=>!g.one).map(g=>g.vj.map(j=>`<th class="s"><span contenteditable data-k="sh${j}">${E(txt['sh'+j]??(j==GJ[g.k][0]?'New':'Old'))}</span><span class="xx xb" title="Remove column" onclick="delCol('j${j}')"> ×</span></th>`).join('')).join('')}</tr></thead><tbody>`;
+ ROWS.forEach((n,i)=>{
+  if(delR.has(i))return;
+  const rm=txt['m'+i]??(att[i].size?'Pdg-'+[...att[i]].join(', '):'');
+  const cells=V.map(g=>g.k==='r'?`<td class="e" contenteditable data-k="r${i}">${E(txt['r'+i])}</td>`:g.k==='a'?`<td class="e" contenteditable data-k="a${i}">${E(txt['a'+i])}</td>`:g.k==='m'?`<td class="e" contenteditable data-k="m${i}">${E(rm)}</td>`:g.vj.map(j=>cell(i,j)).join('')).join('');
+  h+=`<tr><td class="xb"><span class="xx" title="Remove row" onclick="delRowAt(${i})">×</span></td><td class="t ${(i>2&&i<8)||(i>8&&i<NR())?'ex':i==8?'dm':''}" contenteditable data-k="n${i}">${E(txt['n'+i]??n.replace('PROJECT','Project'))}</td>${cells}</tr>`});
+ h+=`<tr class="tot"><td class="xb"></td><td class="t" style="background:none;border-left-color:var(--gold)" contenteditable data-k="h_tot">${E(txt.h_tot??'Total')}</td>`+V.map(g=>g.x?'<td></td>':g.vj.map(j=>`<td id="T${j}">0</td>`).join('')).join('')+'</tr></tbody>';
+ const kc=[['','Enquiries received (cumulative)'],['n','Submitted to marketing (cumulative)'],['g','Total pending for submission'],['r','Pending more than 3 days']].map((c,i)=>`<div class="k ${c[0]}"><span contenteditable data-k="kl${i}">${E(txt['kl'+i]??c[1])}</span><b id="K${i}" contenteditable data-k="kv${i}">${E(txt['kv'+i]??0)}</b></div>`).join('');
+ $('rep').innerHTML=`<div class="rb"><div><h3 contenteditable data-k="title">${E(txt.title||'Enquiry MIS — Daily Status Report')}</h3><p contenteditable data-k="sub">${E(txt.sub??('HTLS · OPGW · Export · Domestic · Copper · Execution — month of '+D.toLocaleString('en-GB',{month:'long',year:'numeric'})))}</p></div><div class="d"><span contenteditable data-k="dsub">${E(txt.dsub??'Status as on')}</span><b contenteditable data-k="dlab">${E(txt.dlab??(D.getDate()+' '+mo+' '+D.getFullYear()))}</b></div></div>
+ <div class="kp">${kc}</div>
+ <div class="tw"><table id="tb">${h}</table></div>
+ <div class="nt"><h4>Key remarks / highlights</h4><div class="nb" contenteditable data-k="notes" data-ph="Type any key point for management here (optional)">${E(txt.notes)}</div></div>
+ <div class="sg"><div>Prepared by: <span contenteditable data-k="prep" data-ph="Name">${E(txt.prep)}</span></div></div>
+ <div class="foot"><span contenteditable data-k="fnote">${E(txt.fnote??('Old = received before '+fmt(MS)+' (previous month) · Pending > 3 days = pending enquiries created before '+fmt(L3)))}</span><span><span contenteditable data-k="dept">${E(txt.dept||'Technical Department')}</span> · Generated ${fmt(new Date())} · Confidential</span></div>`;
+ document.querySelectorAll('#rep [contenteditable]').forEach(e=>e.oninput=()=>{
+  if(e.dataset.k)txt[e.dataset.k]=e.innerText;else{man[e.dataset.c]=e.textContent;if(+e.dataset.j>12)e.classList.toggle('w',(parseFloat(e.textContent)||0)>=3);tot()}});
+ tot()}
+function cell(i,j){
+ const k=i+'_'+j,v=man[k]!==undefined?man[k]:(i>=NR()?'0':String(LASTM[i][j])),n=parseFloat(v)||0;
+ const cl=[i>=NR()?'man':'',j>12?(n>=3?'w':''):(i<NR()&&n==0?'z':'')].join(' ');
+ return`<td class="n ${cl}" contenteditable data-c="${k}" data-j="${j}">${E(v)}</td>`}
+function tot(){
+ const T=Array(15).fill(0);
+ ROWS.forEach((n,i)=>{if(delR.has(i))return;for(let j=0;j<15;j++){const k=i+'_'+j;T[j]+=parseFloat(man[k]!==undefined?man[k]:(i>=NR()?0:LASTM[i][j]))||0}});
+ T.forEach((v,j)=>{if($('T'+j))$('T'+j).textContent=v});
+ [T[0]+T[1],T[6]+T[7],T[12],T[13]+T[14]].forEach((v,i)=>{if(txt['kv'+i]===undefined)$('K'+i).textContent=v})}
+function resetEdits(dateOnly){
+ Object.keys(man).forEach(k=>{if(+k.split('_')[0]<NR())delete man[k]});
+ const P=dateOnly?['h_g','h_t','dlab','fnote','sub','kv']:['h_','sh','kv','kl','dlab','fnote','dsub','sub'];
+ Object.keys(txt).forEach(k=>{if(P.some(p=>k.startsWith(p))&&k!=='sub'+'x')delete txt[k]});render()}
+const fn=()=>'MIS '+fmt(new Date($('rd').value+'T00:00:00'));
+function addRow(){EXTRA++;rebuild();render()}
+function delRowAt(i){delR.add(i);render()}
+function delCol(k){delC.add(k);render()}
+function delGroup(k){(GJ[k]?GJ[k].map(j=>'j'+j):[k]).forEach(x=>delC.add(x));render()}
+function restore(){delR.clear();delC.clear();render()}
+function mailHtml(){
+ const F='font-family:Calibri,Arial,sans-serif;',T=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>'),R=$('rep');
+ const tx=n=>n?n.innerText.trim():'';
+ let t='<table cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:12px;'+F+'">';
+ [...$('tb').rows].filter(tr=>!tr.classList.contains('xb')).forEach(tr=>{const tot=tr.classList.contains('tot');t+='<tr>';
+  [...tr.cells].filter(c=>!c.classList.contains('xb')).forEach(c=>{const H=c.tagName==='TH',L=c.classList;
+   const bg=tot?'#0f2447':H?(L.contains('s')?'#2b5c9e':'#0f2447'):L.contains('t')?'#eef2f8':L.contains('w')?'#fdeaea':'#ffffff';
+   const col=tot||H?'#ffffff':L.contains('w')?'#b3261e':L.contains('z')?'#a3adbf':'#1c2433';
+   const fw=tot||H||L.contains('t')||L.contains('w')?'bold':'normal',al=L.contains('t')||L.contains('e')?'left':'center';
+   const v=[...c.childNodes].filter(n=>!(n.classList&&n.classList.contains('xb'))).map(n=>n.innerText??n.textContent).join('').trim();
+   t+=`<td bgcolor="${bg}" rowspan="${c.rowSpan}" colspan="${c.colSpan}" align="${al}" style="border:1px solid #b9c3d4;padding:5px 8px;${F}background:${bg};color:${col};font-weight:${fw};text-align:${al}">${T(v)}</td>`});t+='</tr>'});
+ t+='</table>';
+ const hd=`<table cellspacing="0" cellpadding="0" width="100%" style="border-collapse:collapse;${F}"><tr><td bgcolor="#0f2447" style="background:#0f2447;color:#ffffff;padding:12px 16px;border-top:5px solid #b8892b"><div style="font-size:20px;font-weight:bold">${T(tx(R.querySelector('h3')))}</div><div style="font-size:12px">${T(tx(R.querySelector('.rb p')))}</div></td><td bgcolor="#0f2447" align="right" style="background:#0f2447;color:#ffffff;padding:12px 16px;border-top:5px solid #b8892b;white-space:nowrap"><div style="font-size:11px">${T(tx(R.querySelector('.d span')))}</div><div style="font-size:20px;font-weight:bold">${T(tx(R.querySelector('.d b')))}</div></td></tr></table>`;
+ const kc={r:'#b3261e',g:'#b8892b',n:'#2a7a4b'};
+ const kp='<table cellspacing="6" cellpadding="0" width="100%" style="'+F+'"><tr>'+[...R.querySelectorAll('.k')].map(k=>{const c=kc[k.className.replace('k','').trim()]||'#1d4e89';return`<td width="25%" style="border:1px solid #d5dbe7;border-left:5px solid ${c};padding:8px 12px;background:#f8f9fc"><div style="font-size:11px;color:#5a6780;text-transform:uppercase">${T(tx(k.querySelector('span')))}</div><div style="font-size:24px;font-weight:bold;color:${c==='#1d4e89'?'#0f2447':c}">${T(tx(k.querySelector('b')))}</div></td>`}).join('')+'</tr></table>';
+ const nt=tx(R.querySelector('.nb')),pb=tx(R.querySelector('.sg span')),ft=tx(R.querySelector('.foot'));
+ return `<div style="${F}">${hd}${kp}<br>${t}${nt?`<p style="font-size:12.5px"><b>Key remarks / highlights</b><br>${T(nt)}</p>`:''}${pb?`<p style="font-size:12px">Prepared by: ${T(pb)}</p>`:''}<p style="font-size:11px;color:#667">${T(ft)}</p></div>`}
+async function cpMail(){
+ const h=mailHtml(),m=$('cpm'),ok=()=>{m.style.color='#1d5a2b';m.textContent='✔ Copied — Outlook mail me Ctrl+V karo'},bad=()=>{m.style.color='#b3261e';m.textContent='Copy nahi hua — Download PNG ya Print / PDF use karo'};
+ try{await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([h],{type:'text/html'}),'text/plain':new Blob([R_txt()],{type:'text/plain'})})]);ok()}
+ catch(e){try{const d=document.createElement('div');d.contentEditable='true';d.style.cssText='position:fixed;left:-9999px;top:0;background:#fff';d.innerHTML=h;document.body.appendChild(d);const r=document.createRange();r.selectNodeContents(d);const s=getSelection();s.removeAllRanges();s.addRange(r);const k=document.execCommand('copy');s.removeAllRanges();d.remove();k?ok():bad()}catch(e2){bad()}}
+ setTimeout(()=>{m.textContent=''},8000)}
+const R_txt=()=>$('rep').innerText;
+function dlPng(){
+ const el=$('rep'),hid=[];
+ el.querySelectorAll('.nt,.sg').forEach(b=>{if(![...b.querySelectorAll('[contenteditable]')].some(x=>x.innerText.trim())){b.style.display='none';hid.push(b)}});
+ el.classList.add('exp');
+ const w=el.scrollWidth,h=el.scrollHeight,clone=el.cloneNode(true),src=[el,...el.querySelectorAll('*')],dst=[clone,...clone.querySelectorAll('*')];
+ src.forEach((n,i)=>{const cs=getComputedStyle(n);let t='';for(const p of cs)t+=p+':'+cs.getPropertyValue(p)+';';dst[i].setAttribute('style',t);dst[i].removeAttribute('contenteditable')});
+ el.classList.remove('exp');hid.forEach(b=>b.style.display='');
+ const xml=new XMLSerializer().serializeToString(clone),K=2;
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${w*K}" height="${h*K}" viewBox="0 0 ${w} ${h}"><foreignObject width="${w}" height="${h}">${xml}</foreignObject></svg>`;
+ const img=new Image();
+ img.onload=()=>{const c=document.createElement('canvas');c.width=w*K;c.height=h*K;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0);
+  c.toBlob(b=>b?save(b,fn()+'.png'):showErr('PNG banane me dikkat aayi. Print / PDF ya Excel use karo.'),'image/png')};
+ img.onerror=()=>showErr('PNG banane me dikkat aayi. Print / PDF ya Excel use karo.');
+ img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}
+function dlXls(){
+ const g=tbl($('tb')),nh=[...$('tb').tHead.rows].filter(r=>!r.classList.contains('xb')).length,S=[];
+ S.push({name:'Summary',rows:[[txt.title||'Enquiry MIS — Daily Status Report'],['Status as on '+fmt(CURD)],[],...g.rows],mg:g.mg.map(m=>[m[0]+3,m[1],m[2]+3,m[3]]),hdr:Array.from({length:nh},(_,i)=>3+i),w:[30,...Array(30).fill(16)]});
+ const FL=[['g0','Cum. received'],['g1','Received on date'],['g2','Submitted on date'],['g3','Cum. submitted'],['g4','Query raised on date'],['g5','Query pending with MKT'],['p','Pending for MKT'],['t','Pending > 3 days']].filter(f=>GJ[f[0]].some(j=>!delC.has('j'+j)));
+ [...CATS,...CUSTOM].forEach((n,i)=>{
+  if(delR.has(i))return;
+  const L=LISTS[i].filter(x=>FL.some(f=>x.f[f[0]]));if(!L.length)return;
+  const aoa=[['MKT Ref','Creator','Zone','Customer','Project','Conductor','Qty','Created','Status','Submission date','Attended by','Batch',...FL.map(f=>f[1])]];
+  L.forEach(x=>{const r=x.r;aoa.push([r.ref,r.cr,r.zone,r.cust,r.pn,r.cond,r.qty,fmt(r.created),r.stx,r.sub?fmt(r.sub):'',r.att,x.o?'Old':'New',...FL.map(f=>x.f[f[0]]?'Yes':'')])});
+  S.push({name:n.replace('PROJECT','Project').replace(/[\[\]:*?\/\\(),]/g,'').slice(0,31),rows:aoa,hdr:[0],w:[22,18,22,28,30,20,10,12,26,14,18,7,...FL.map(()=>16)]})});
+ save(buildXlsx(S),fn()+'.xlsx')}
+{const l=document.getElementById('ld');l.style.color='#9be3ae';l.textContent=typeof DecompressionStream==='undefined'?'⚠ Browser purana hai':'✔ Tool ready'}
+</script></body></html>
